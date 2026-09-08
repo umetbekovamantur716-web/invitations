@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="ky" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Бакыт & Айпери — Үйлөнүү тойго чакыруу</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Great+Vibes&family=Montserrat:wght@200;300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- GSAP & ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            100: '#FDF8EC',
+                            200: '#F6E6BA',
+                            300: '#E7C875',
+                            400: '#D4AF37',
+                            500: '#AA820A',
+                            600: '#856404'
+                        },
+                        velvet: {
+                            900: '#15131A',
+                            800: '#231E2A',
+                            700: '#342C3D'
+                        },
+                        ivory: '#FAF7F2'
+                    },
+                    fontFamily: {
+                        cinzel: ['Cinzel', 'serif'],
+                        script: ['"Great Vibes"', 'cursive'],
+                        sans: ['Montserrat', 'sans-serif'],
+                        serif: ['"Playfair Display"', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0d0c10;
+            color: #FAF7F2;
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Ambient Glow & Backgrounds */
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #FFF0C2 0%, #D4AF37 50%, #856404 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gold-border-glow {
+            border: 1px solid rgba(212, 175, 55, 0.35);
+            box-shadow: 0 0 25px rgba(212, 175, 55, 0.15), inset 0 0 15px rgba(212, 175, 55, 0.05);
+        }
+
+        .glass-card {
+            background: rgba(28, 25, 34, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+        }
+
+        /* 3D Envelope Scene */
+        .envelope-scene {
+            perspective: 1400px;
+        }
+
+        .envelope-wrapper {
+            position: relative;
+            width: 320px;
+            height: 220px;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @media (min-width: 640px) {
+            .envelope-wrapper {
+                width: 440px;
+                height: 290px;
+            }
+        }
+
+        .envelope-back {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(145deg, #1c1822, #100e14);
+            border-radius: 12px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(212, 175, 55, 0.15);
+        }
+
+        .letter-card {
+            position: absolute;
+            width: 90%;
+            height: 90%;
+            left: 5%;
+            bottom: 5%;
+            background: #FAF7F2;
+            border-radius: 8px;
+            padding: 1.5rem;
+            color: #1a171d;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.6s ease;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .flap-top {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 160px solid transparent;
+            border-right: 160px solid transparent;
+            border-top: 130px solid #272230;
+            transform-origin: top center;
+            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5;
+            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.6));
+        }
+
+        @media (min-width: 640px) {
+            .flap-top {
+                border-left-width: 220px;
+                border-right-width: 220px;
+                border-top-width: 165px;
+            }
+        }
+
+        .pocket {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 4;
+            pointer-events: none;
+        }
+
+        .pocket-left {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 160px solid #1f1b26;
+            border-top: 110px solid transparent;
+            border-bottom: 110px solid #1f1b26;
+            border-bottom-left-radius: 12px;
+        }
+
+        .pocket-right {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 0;
+            height: 0;
+            border-right: 160px solid #1f1b26;
+            border-top: 110px solid transparent;
+            border-bottom: 110px solid #1f1b26;
+            border-bottom-right-radius: 12px;
+        }
+
+        .pocket-bottom {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 160px solid transparent;
+            border-right: 160px solid transparent;
+            border-bottom: 130px solid #231f2b;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+
+        @media (min-width: 640px) {
+            .pocket-left {
+                border-left-width: 220px;
+                border-top-width: 145px;
+                border-bottom-width: 145px;
+            }
+            .pocket-right {
+                border-right-width: 220px;
+                border-top-width: 145px;
+                border-bottom-width: 145px;
+            }
+            .pocket-bottom {
+                border-left-width: 220px;
+                border-right-width: 220px;
+                border-bottom-width: 175px;
+            }
+        }
+
+        .wax-seal {
+            position: absolute;
+            top: 95px;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 54px;
+            height: 54px;
+            background: radial-gradient(circle at 35% 35%, #fadc78, #b8860b, #5f4503);
+            border-radius: 50%;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.6), 0 0 20px rgba(218, 165, 32, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 6;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @media (min-width: 640px) {
+            .wax-seal {
+                top: 130px;
+                width: 68px;
+                height: 68px;
+            }
+        }
+
+        .wax-seal:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+            box-shadow: 0 10px 25px rgba(212, 175, 55, 0.6);
+        }
+
+        /* Envelope Open States */
+        .envelope-wrapper.open .flap-top {
+            transform: rotateX(180deg);
+            z-index: 1;
+        }
+
+        .envelope-wrapper.open .wax-seal {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.5);
+            pointer-events: none;
+        }
+
+        .envelope-wrapper.open .letter-card {
+            transform: translateY(-130px) scale(1.05);
+            z-index: 7;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+        }
+
+        @media (min-width: 640px) {
+            .envelope-wrapper.open .letter-card {
+                transform: translateY(-180px) scale(1.08);
+            }
+        }
+
+        /* Petal Falling Animation */
+        .petal {
+            position: fixed;
+            background: radial-gradient(circle, rgba(255,192,203,0.8) 0%, rgba(255,220,230,0.4) 70%, transparent 100%);
+            border-radius: 150% 0 150% 0;
+            pointer-events: none;
+            z-index: 20;
+            opacity: 0.7;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translate(0, -10vh) rotate(0deg) scale(0.8);
+                opacity: 0;
+            }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% {
+                transform: translate(120px, 105vh) rotate(720deg) scale(1.1);
+                opacity: 0;
+            }
+        }
+
+        /* Floating Botanicals */
+        .floating-flower {
+            position: absolute;
+            pointer-events: none;
+            filter: drop-shadow(0 15px 25px rgba(0,0,0,0.6));
+            z-index: 10;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0d0c10;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #D4AF37;
+            border-radius: 3px;
+        }
+
+        /* Glow effects */
+        .pulsing-glow {
+            animation: pulseGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            0% { filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.3)); }
+            100% { filter: drop-shadow(0 0 25px rgba(212, 175, 55, 0.8)); }
+        }
+
+        /* 3D photo effect */
+        .photo-card {
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            transition: transform 0.5s ease;
+        }
+        .photo-card:hover {
+            transform: translateY(-8px) scale(1.02);
+        }
+    </style>
+</head>
+<body class="bg-[#0d0c10] text-ivory antialiased selection:bg-gold-400 selection:text-velvet-900">
+
+    <!-- Falling Petals Container -->
+    <div id="petals-container" class="pointer-events-none fixed inset-0 overflow-hidden z-20"></div>
+
+    <!-- Background Ambient Canvas / Glows -->
+    <div class="fixed inset-0 pointer-events-none z-0">
+        <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gold-400/5 rounded-full blur-[140px]"></div>
+        <div class="absolute bottom-1/3 right-[-100px] w-[400px] h-[400px] bg-amber-600/5 rounded-full blur-[120px]"></div>
+    </div>
+
+    <!-- FIXED CORNER FLORALS (Interactive Parallax) -->
+    <div class="fixed top-0 left-0 -translate-x-6 -translate-y-6 md:translate-x-0 md:translate-y-0 w-36 sm:w-56 md:w-72 pointer-events-none z-30 transition-transform duration-700 ease-out" id="corner-flower-tl">
+        <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full opacity-60 drop-shadow-[0_10px_20px_rgba(212,175,55,0.2)]">
+            <path d="M10 10 C 60 10, 90 40, 100 90 C 110 40, 140 10, 190 10 C 140 30, 120 70, 130 120 C 100 100, 70 100, 40 130 C 50 80, 30 40, 10 10 Z" fill="url(#goldGrad)"/>
+            <circle cx="100" cy="90" r="8" fill="#F6E6BA"/>
+            <path d="M20 70 Q 70 80 85 135" stroke="#D4AF37" stroke-width="1.5" stroke-dasharray="3 3"/>
+            <path d="M70 20 Q 80 70 135 85" stroke="#D4AF37" stroke-width="1.5" stroke-dasharray="3 3"/>
+            <defs>
+                <linearGradient id="goldGrad" x1="0" y1="0" x2="200" y2="200" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#FFF0C2" stop-opacity="0.8"/>
+                    <stop offset="0.5" stop-color="#D4AF37" stop-opacity="0.5"/>
+                    <stop offset="1" stop-color="#856404" stop-opacity="0.2"/>
+                </linearGradient>
+            </defs>
+        </svg>
+    </div>
+
+    <div class="fixed bottom-0 right-0 translate-x-6 translate-y-6 md:translate-x-0 md:translate-y-0 w-36 sm:w-56 md:w-72 pointer-events-none z-30 transition-transform duration-700 ease-out rotate-180" id="corner-flower-br">
+        <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full opacity-60 drop-shadow-[0_10px_20px_rgba(212,175,55,0.2)]">
+            <path d="M10 10 C 60 10, 90 40, 100 90 C 110 40, 140 10, 190 10 C 140 30, 120 70, 130 120 C 100 100, 70 100, 40 130 C 50 80, 30 40, 10 10 Z" fill="url(#goldGrad2)"/>
+            <circle cx="100" cy="90" r="8" fill="#F6E6BA"/>
+            <path d="M20 70 Q 70 80 85 135" stroke="#D4AF37" stroke-width="1.5"/>
+            <defs>
+                <linearGradient id="goldGrad2" x1="0" y1="0" x2="200" y2="200" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#FFF0C2" stop-opacity="0.8"/>
+                    <stop offset="0.5" stop-color="#D4AF37" stop-opacity="0.5"/>
+                    <stop offset="1" stop-color="#856404" stop-opacity="0.2"/>
+                </linearGradient>
+            </defs>
+        </svg>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- SCREEN 1: 3D ENVELOPE OPENING OVERLAY                     -->
+    <!-- ======================================================== -->
+    <section id="envelope-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0e0c12] p-4 transition-all duration-1000">
+        <!-- Floating Floral Accents in Intro -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div class="absolute -top-10 left-1/4 w-40 h-40 bg-gold-400/10 rounded-full blur-3xl animate-pulse"></div>
+            <div class="absolute bottom-10 right-1/4 w-52 h-52 bg-amber-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1.5s;"></div>
+        </div>
+
+        <div class="text-center mb-8 relative z-10">
+            <span class="font-cinzel text-xs md:text-sm tracking-[0.4em] uppercase text-gold-300 block mb-2 opacity-90">Сизге өзгөчө чакыруу кат</span>
+            <h2 class="font-serif italic text-2xl md:text-3xl text-ivory/90">Бакыт & Айпери</h2>
+            <div class="w-12 h-[1px] bg-gradient-to-r from-transparent via-gold-400 to-transparent mx-auto mt-3"></div>
+        </div>
+
+        <!-- 3D Envelope Container -->
+        <div class="envelope-scene my-4">
+            <div id="envelope" class="envelope-wrapper cursor-pointer group">
+                <!-- Back side -->
+                <div class="envelope-back flex items-center justify-center">
+                    <div class="border border-gold-400/20 w-[92%] h-[88%] rounded flex items-center justify-center">
+                        <span class="font-cinzel text-gold-400/30 text-xs tracking-[0.5em]">TOI CHAKYRYK</span>
+                    </div>
+                </div>
+
+                <!-- Sliding Letter Card -->
+                <div class="letter-card">
+                    <div class="border border-gold-400/40 w-full h-full p-4 flex flex-col justify-between items-center rounded bg-[#FAF7F2]">
+                        <div class="font-cinzel text-[10px] sm:text-xs tracking-widest text-[#6e5828] uppercase font-semibold">Үйлөнүү үлпөт той</div>
+                        <div>
+                            <p class="font-script text-3xl sm:text-4xl text-[#1e1b18] my-1">Бакыт & Айпери</p>
+                            <p class="font-sans text-[11px] sm:text-xs text-[#524c42] tracking-wider mt-1 font-medium">18.09.2026 • БИШКЕК</p>
+                        </div>
+                        <div class="text-[9px] sm:text-[10px] text-[#8c743d] font-cinzel tracking-widest uppercase">Толук маалыматты көрүү ↓</div>
+                    </div>
+                </div>
+
+                <!-- Top Flap (3D Folds) -->
+                <div class="flap-top"></div>
+
+                <!-- Front Pocket -->
+                <div class="pocket">
+                    <div class="pocket-left"></div>
+                    <div class="pocket-right"></div>
+                    <div class="pocket-bottom"></div>
+                </div>
+
+                <!-- Wax Seal -->
+                <div id="wax-seal" class="wax-seal pulsing-glow">
+                    <svg class="w-6 h-6 sm:w-8 sm:h-8 text-[#2a1a05] drop-shadow" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call To Action Text -->
+        <div id="open-instructions" class="mt-8 text-center transition-opacity duration-500 z-10">
+            <button onclick="openEnvelope()" class="px-8 py-3 rounded-full glass-card border border-gold-400/50 text-gold-200 font-cinzel text-xs md:text-sm tracking-[0.25em] uppercase hover:bg-gold-400 hover:text-velvet-900 transition-all duration-300 shadow-[0_0_20px_rgba(212,175,55,0.2)] flex items-center gap-3 mx-auto active:scale-95">
+                <i data-lucide="mail-open" class="w-4 h-4 text-gold-400 group-hover:text-velvet-900"></i>
+                <span>Конвертти ачуу</span>
+            </button>
+            <p class="text-[11px] text-ivory/50 font-sans mt-3 tracking-widest uppercase">Чакырууну ачуу үчүн конвертти басыңыз</p>
+        </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- MAIN INVITATION CONTENT (Revealed After Envelope Opens)  -->
+    <!-- ======================================================== -->
+    <main id="main-content" class="opacity-0 transition-opacity duration-1000 relative z-10 min-h-screen">
+
+        <!-- Audio Player Button (Floating) -->
+        <div class="fixed top-5 right-5 z-40">
+            <button id="music-toggle" class="w-11 h-11 rounded-full glass-card border border-gold-400/40 text-gold-300 flex items-center justify-center shadow-lg hover:scale-110 active:scale-95 transition-transform" title="Музыканы күйгүзүү/өчүрүү">
+                <i data-lucide="music" class="w-5 h-5 animate-spin" style="animation-duration: 6s;"></i>
+            </button>
+        </div>
+
+        <!-- HERO SECTION: MAIN INVITATION -->
+        <section id="hero" class="min-h-screen flex flex-col justify-center items-center text-center px-4 py-20 relative">
+            <div class="max-w-3xl mx-auto space-y-6">
+                <!-- Top Ornament -->
+                <div class="flex items-center justify-center gap-3 opacity-80" data-anim="fade-up">
+                    <span class="w-12 sm:w-20 h-[1px] bg-gradient-to-r from-transparent to-gold-400"></span>
+                    <i data-lucide="sparkles" class="w-4 h-4 text-gold-300"></i>
+                    <span class="font-cinzel text-xs md:text-sm tracking-[0.35em] text-gold-200 uppercase">Үлпөт тойго чакыруу</span>
+                    <i data-lucide="sparkles" class="w-4 h-4 text-gold-300"></i>
+                    <span class="w-12 sm:w-20 h-[1px] bg-gradient-to-l from-transparent to-gold-400"></span>
+                </div>
+
+                <!-- Main Greeting Kyrgyz -->
+                <p class="text-sm sm:text-base md:text-lg text-ivory/80 font-serif italic max-w-xl mx-auto leading-relaxed" data-anim="fade-up">
+                    «Эки жүрөктүн махабаты биригип, жаңы турмуш босогосун аттаган өзгөчө салтанаттуу күнүбүздүн кадырлуу коногу болуп, кубанычыбызды тең бөлүшүүгө чакырабыз!»
+                </p>
+
+                <!-- Couple Names -->
+                <div class="py-6" data-anim="zoom-in">
+                    <div class="flex flex-col md:flex-row items-center justify-center gap-3 md:gap-8">
+                        <div class="text-center">
+                            <span class="text-xs font-cinzel tracking-[0.3em] text-gold-400/80 uppercase block mb-1">Күйөө жигит</span>
+                            <h1 class="font-serif text-4xl sm:text-6xl md:text-7xl font-semibold gold-gradient-text tracking-wide">Бакыт</h1>
+                        </div>
+
+                        <div class="font-script text-4xl sm:text-5xl md:text-6xl text-gold-300 my-[-10px] md:my-0">&</div>
+
+                        <div class="text-center">
+                            <span class="text-xs font-cinzel tracking-[0.3em] text-gold-400/80 uppercase block mb-1">Келин</span>
+                            <h1 class="font-serif text-4xl sm:text-6xl md:text-7xl font-semibold gold-gradient-text tracking-wide">Айпери</h1>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wedding Date & Venue High-level -->
+                <div class="pt-4 space-y-3" data-anim="fade-up">
+                    <div class="inline-flex items-center gap-4 px-6 py-2 rounded-full glass-card border border-gold-400/30 text-gold-200 font-cinzel text-sm sm:text-base tracking-[0.2em]">
+                        <i data-lucide="calendar" class="w-4 h-4 text-gold-400"></i>
+                        <span>18 • СЕНТЯБРЬ • 2026</span>
+                    </div>
+                    <p class="text-xs sm:text-sm font-sans tracking-widest text-ivory/70 uppercase">
+                        Бишкек шаары • «Ала-Тоо Grand Hall» рестораны
+                    </p>
+                </div>
+
+                <!-- Scroll Down Indicator -->
+                <div class="pt-12 flex flex-col items-center gap-2 opacity-60 animate-bounce">
+                    <span class="text-[10px] font-cinzel tracking-[0.3em] uppercase text-gold-200">Төмөн сүрүңүз</span>
+                    <i data-lucide="chevron-down" class="w-4 h-4 text-gold-400"></i>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- PHOTO GALLERY (PREMIUM 3D HOVER) -->
+        <section class="py-20 px-4 relative max-w-6xl mx-auto">
+            <div class="text-center mb-14" data-anim="fade-up">
+                <span class="font-script text-3xl sm:text-4xl text-gold-300 block">Биздин бактылуу көз ирмемдер</span>
+                <h2 class="font-cinzel text-2xl sm:text-3xl tracking-[0.2em] uppercase text-ivory mt-1">Фото Галерея</h2>
+                <div class="w-16 h-[1px] bg-gold-400 mx-auto mt-3"></div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                <!-- Photo 1 -->
+                <div class="photo-card group rounded-2xl overflow-hidden glass-card gold-border-glow p-2" data-anim="fade-up">
+                    <div class="relative h-80 sm:h-96 w-full overflow-hidden rounded-xl">
+                        <img src="https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=800&q=80" 
+                             alt="Бакыт & Айпери" 
+                             class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700">
+                        <div class="absolute inset-0 bg-gradient-to-t from-velvet-900/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                            <p class="font-serif italic text-gold-200 text-lg">«Түбөлүктүү сүйүү»</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Photo 2 -->
+                <div class="photo-card group rounded-2xl overflow-hidden glass-card gold-border-glow p-2 lg:translate-y-6" data-anim="fade-up" style="animation-delay: 0.2s;">
+                    <div class="relative h-80 sm:h-96 w-full overflow-hidden rounded-xl">
+                        <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80" 
+                             alt="Үйлөнүү той" 
+                             class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700">
+                        <div class="absolute inset-0 bg-gradient-to-t from-velvet-900/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                            <p class="font-serif italic text-gold-200 text-lg">«Бирге баскан ак жол»</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Photo 3 -->
+                <div class="photo-card group rounded-2xl overflow-hidden glass-card gold-border-glow p-2 sm:col-span-2 lg:col-span-1" data-anim="fade-up" style="animation-delay: 0.4s;">
+                    <div class="relative h-80 sm:h-96 w-full overflow-hidden rounded-xl">
+                        <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80" 
+                             alt="Махабат" 
+                             class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700">
+                        <div class="absolute inset-0 bg-gradient-to-t from-velvet-900/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                            <p class="font-serif italic text-gold-200 text-lg">«Бактылуу көз ирмем»</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- COUNTDOWN TIMER SECTION -->
+        <section class="py-20 px-4 relative">
+            <div class="max-w-4xl mx-auto glass-card rounded-3xl p-8 sm:p-12 gold-border-glow text-center relative overflow-hidden" data-anim="fade-up">
+                <!-- Background decorative ring -->
+                <div class="absolute -right-20 -bottom-20 w-64 h-64 border border-gold-400/10 rounded-full pointer-events-none"></div>
+                <div class="absolute -left-20 -top-20 w-64 h-64 border border-gold-400/10 rounded-full pointer-events-none"></div>
+
+                <span class="font-cinzel text-xs tracking-[0.4em] uppercase text-gold-400 block mb-2">Үлпөт той салтанатына чейин</span>
+                <h2 class="font-serif text-2xl sm:text-4xl text-ivory mb-8">Бактылуу күнгө калган убакыт:</h2>
+
+                <!-- Countdown Grid -->
+                <div class="grid grid-cols-4 gap-2 sm:gap-6 max-w-2xl mx-auto">
+                    <div class="bg-velvet-900/80 border border-gold-400/30 rounded-xl p-3 sm:p-5 shadow-inner flex flex-col justify-center">
+                        <span id="cd-days" class="font-serif text-2xl sm:text-5xl font-bold text-gold-200">00</span>
+                        <span class="text-[10px] sm:text-xs font-cinzel text-ivory/60 tracking-wider uppercase mt-1">Күн</span>
+                    </div>
+                    <div class="bg-velvet-900/80 border border-gold-400/30 rounded-xl p-3 sm:p-5 shadow-inner flex flex-col justify-center">
+                        <span id="cd-hours" class="font-serif text-2xl sm:text-5xl font-bold text-gold-200">00</span>
+                        <span class="text-[10px] sm:text-xs font-cinzel text-ivory/60 tracking-wider uppercase mt-1">Саат</span>
+                    </div>
+                    <div class="bg-velvet-900/80 border border-gold-400/30 rounded-xl p-3 sm:p-5 shadow-inner flex flex-col justify-center">
+                        <span id="cd-minutes" class="font-serif text-2xl sm:text-5xl font-bold text-gold-200">00</span>
+                        <span class="text-[10px] sm:text-xs font-cinzel text-ivory/60 tracking-wider uppercase mt-1">Мүнөт</span>
+                    </div>
+                    <div class="bg-velvet-900/80 border border-gold-400/30 rounded-xl p-3 sm:p-5 shadow-inner flex flex-col justify-center">
+                        <span id="cd-seconds" class="font-serif text-2xl sm:text-5xl font-bold text-gold-200">00</span>
+                        <span class="text-[10px] sm:text-xs font-cinzel text-ivory/60 tracking-wider uppercase mt-1">Секунд</span>
+                    </div>
+                </div>
+
+                <p class="text-xs sm:text-sm text-gold-300/80 font-sans mt-8 tracking-widest uppercase">
+                    18-Сентябрь, 2026-жыл • Саат 18:00
+                </p>
+            </div>
+        </section>
+
+
+        <!-- WEDDING DETAILS & TIMELINE -->
+        <section class="py-20 px-4 relative max-w-5xl mx-auto">
+            <div class="text-center mb-16" data-anim="fade-up">
+                <span class="font-script text-3xl text-gold-300 block">Маалымат & Программа</span>
+                <h2 class="font-cinzel text-2xl sm:text-3xl tracking-[0.2em] uppercase text-ivory mt-1">Той тууралуу маалымат</h2>
+                <div class="w-16 h-[1px] bg-gold-400 mx-auto mt-3"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Card 1: Датасы -->
+                <div class="glass-card rounded-2xl p-8 text-center gold-border-glow flex flex-col items-center justify-between" data-anim="fade-up">
+                    <div class="w-14 h-14 rounded-full bg-gold-400/10 border border-gold-400/40 flex items-center justify-center text-gold-300 mb-5">
+                        <i data-lucide="calendar-heart" class="w-7 h-7"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-cinzel text-lg tracking-wider text-gold-200 mb-2 uppercase">Той күнү</h3>
+                        <p class="font-serif text-2xl text-ivory font-semibold">18.09.2026</p>
+                        <p class="text-xs text-ivory/60 mt-1 uppercase tracking-wider">Жума күнү</p>
+                    </div>
+                    <div class="w-8 h-[1px] bg-gold-400/30 my-4"></div>
+                    <p class="text-xs text-ivory/70 font-sans">Күндү биз менен бирге белгилеңиз</p>
+                </div>
+
+                <!-- Card 2: Сааты -->
+                <div class="glass-card rounded-2xl p-8 text-center gold-border-glow flex flex-col items-center justify-between" data-anim="fade-up" style="animation-delay: 0.15s;">
+                    <div class="w-14 h-14 rounded-full bg-gold-400/10 border border-gold-400/40 flex items-center justify-center text-gold-300 mb-5">
+                        <i data-lucide="clock" class="w-7 h-7"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-cinzel text-lg tracking-wider text-gold-200 mb-2 uppercase">Башталышы</h3>
+                        <p class="font-serif text-2xl text-ivory font-semibold">18:00</p>
+                        <p class="text-xs text-ivory/60 mt-1 uppercase tracking-wider">Конокторду тосуп алуу</p>
+                    </div>
+                    <div class="w-8 h-[1px] bg-gold-400/30 my-4"></div>
+                    <p class="text-xs text-ivory/70 font-sans">Өз убагында келүүңүздү өтүнөбүз</p>
+                </div>
+
+                <!-- Card 3: Дареги -->
+                <div class="glass-card rounded-2xl p-8 text-center gold-border-glow flex flex-col items-center justify-between" data-anim="fade-up" style="animation-delay: 0.3s;">
+                    <div class="w-14 h-14 rounded-full bg-gold-400/10 border border-gold-400/40 flex items-center justify-center text-gold-300 mb-5">
+                        <i data-lucide="map-pin" class="w-7 h-7"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-cinzel text-lg tracking-wider text-gold-200 mb-2 uppercase">Дареги</h3>
+                        <p class="font-serif text-xl sm:text-2xl text-ivory font-semibold">«Ала-Тоо Grand Hall»</p>
+                        <p class="text-xs text-ivory/60 mt-1 uppercase tracking-wider">Бишкек ш., Аалы Токомбаев көч., 15</p>
+                    </div>
+                    <div class="w-8 h-[1px] bg-gold-400/30 my-4"></div>
+                    <p class="text-xs text-ivory/70 font-sans">Салатанаттуу ресторан</p>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- DRESS CODE SECTION -->
+        <section class="py-20 px-4 relative max-w-4xl mx-auto text-center">
+            <div class="glass-card rounded-3xl p-8 sm:p-12 gold-border-glow relative" data-anim="fade-up">
+                <span class="font-script text-3xl sm:text-4xl text-gold-300 block mb-1">Стиль жана көрк</span>
+                <h2 class="font-cinzel text-2xl sm:text-3xl tracking-[0.25em] uppercase text-ivory mb-6">Dress Code</h2>
+                
+                <p class="font-sans text-sm sm:text-base text-ivory/80 max-w-lg mx-auto leading-relaxed mb-8">
+                    «Биздин майрамдын көркүн ачып, эң сонун классикалык жана кечки кийимдериңиздер менен келишиңиздерди чын жүрөктөн каалайбыз.»
+                </p>
+
+                <!-- Color Palette Suggestions -->
+                <div class="flex flex-col items-center justify-center gap-3">
+                    <span class="text-xs font-cinzel tracking-widest text-gold-300 uppercase">Сунушталган түстөр:</span>
+                    <div class="flex items-center gap-4 mt-2">
+                        <div class="flex flex-col items-center gap-1">
+                            <div class="w-10 h-10 rounded-full bg-[#1e1b18] border-2 border-gold-400/60 shadow-md"></div>
+                            <span class="text-[10px] text-ivory/60">Black</span>
+                        </div>
+                        <div class="flex flex-col items-center gap-1">
+                            <div class="w-10 h-10 rounded-full bg-[#D4AF37] border-2 border-gold-400/60 shadow-md"></div>
+                            <span class="text-[10px] text-ivory/60">Gold</span>
+                        </div>
+                        <div class="flex flex-col items-center gap-1">
+                            <div class="w-10 h-10 rounded-full bg-[#2E3B32] border-2 border-gold-400/60 shadow-md"></div>
+                            <span class="text-[10px] text-ivory/60">Emerald</span>
+                        </div>
+                        <div class="flex flex-col items-center gap-1">
+                            <div class="w-10 h-10 rounded-full bg-[#E5DCCB] border-2 border-gold-400/60 shadow-md"></div>
+                            <span class="text-[10px] text-ivory/60">Beige</span>
+                        </div>
+                        <div class="flex flex-col items-center gap-1">
+                            <div class="w-10 h-10 rounded-full bg-[#4A1521] border-2 border-gold-400/60 shadow-md"></div>
+                            <span class="text-[10px] text-ivory/60">Burgundy</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- LOCATION & MAP SECTION -->
+        <section class="py-20 px-4 relative max-w-5xl mx-auto">
+            <div class="text-center mb-12" data-anim="fade-up">
+                <span class="font-script text-3xl text-gold-300 block">Карта жана багыт</span>
+                <h2 class="font-cinzel text-2xl sm:text-3xl tracking-[0.2em] uppercase text-ivory mt-1">Той өтүүчү жай</h2>
+                <div class="w-16 h-[1px] bg-gold-400 mx-auto mt-3"></div>
+            </div>
+
+            <div class="glass-card rounded-3xl overflow-hidden gold-border-glow p-4 sm:p-6" data-anim="fade-up">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                    
+                    <!-- Venue Details -->
+                    <div class="lg:col-span-5 space-y-6 text-left p-2 sm:p-4">
+                        <div>
+                            <span class="text-xs font-cinzel text-gold-400 tracking-widest uppercase">Ресторан</span>
+                            <h3 class="font-serif text-3xl text-ivory font-semibold mt-1">«Ала-Тоо Grand Hall»</h3>
+                            <p class="text-sm text-ivory/70 mt-2 font-sans leading-relaxed">
+                                Бишкек шаары, Аалы Токомбаев көчөсү (Түштүк магистраль), 15
+                            </p>
+                        </div>
+
+                        <div class="space-y-3 pt-2">
+                            <div class="flex items-center gap-3 text-sm text-ivory/80">
+                                <i data-lucide="phone" class="w-4 h-4 text-gold-400"></i>
+                                <span>+996 (555) 12-34-56</span>
+                            </div>
+                            <div class="flex items-center gap-3 text-sm text-ivory/80">
+                                <i data-lucide="car" class="w-4 h-4 text-gold-400"></i>
+                                <span>Ыңгайлуу бекер унаа токтотуучу жай</span>
+                            </div>
+                        </div>
+
+                        <!-- Route Action Buttons -->
+                        <div class="pt-4 flex flex-wrap gap-3">
+                            <a href="https://2gis.kg/bishkek" target="_blank" rel="noopener noreferrer" 
+                               class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gold-400 text-velvet-900 font-cinzel text-xs font-bold tracking-wider uppercase hover:bg-gold-300 transition-all shadow-lg active:scale-95">
+                                <i data-lucide="navigation" class="w-4 h-4"></i>
+                                <span>2GIS Маршрут</span>
+                            </a>
+                            <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" 
+                               class="inline-flex items-center gap-2 px-6 py-3 rounded-xl glass-card border border-gold-400/50 text-gold-200 font-cinzel text-xs font-semibold tracking-wider uppercase hover:bg-gold-400/20 transition-all active:scale-95">
+                                <i data-lucide="map" class="w-4 h-4"></i>
+                                <span>Google Maps</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Map Iframe -->
+                    <div class="lg:col-span-7 h-72 sm:h-96 rounded-2xl overflow-hidden border border-gold-400/30 relative shadow-2xl">
+                        <iframe 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2925.342615456259!2d74.60624891544837!3d42.82338167915837!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x389eb63c0a5b6f3b%3A0x6b772c679a95ec9!2sAla-Too%20Resto-Club!5e0!3m2!1sen!2skg!4v1680000000000!5m2!1sen!2skg" 
+                            width="100%" 
+                            height="100%" 
+                            style="border:0; filter: invert(90%) hue-rotate(180deg) contrast(1.1);" 
+                            allowfullscreen="" 
+                            loading="lazy" 
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+
+        <!-- FINAL SCREEN / FOOTER -->
+        <section class="py-24 px-4 text-center relative overflow-hidden">
+            <div class="max-w-3xl mx-auto space-y-8 relative z-10" data-anim="fade-up">
+                <!-- Floral Emblem -->
+                <div class="w-20 h-20 mx-auto text-gold-300 opacity-90 pulsing-glow">
+                    <svg viewBox="0 0 100 100" fill="currentColor">
+                        <path d="M50 5 C55 30, 70 45, 95 50 C70 55, 55 70, 50 95 C45 70, 30 55, 5 50 C30 45, 45 30, 50 5 Z"/>
+                    </svg>
+                </div>
+
+                <p class="font-serif italic text-lg sm:text-2xl text-ivory/90 leading-relaxed max-w-2xl mx-auto">
+                    «Биздин кубанычыбызды бөлүшүп, өзгөчө күнүбүздө биз менен бирге болуңуздар!»
+                </p>
+
+                <div class="py-2">
+                    <h2 class="font-cinzel text-3xl sm:text-5xl font-bold gold-gradient-text tracking-[0.2em] uppercase">
+                        Сиздерди күтөбүз!
+                    </h2>
+                </div>
+
+                <div class="pt-6 font-sans text-xs text-ivory/40 tracking-widest uppercase">
+                    Урматыбыз менен: <strong class="text-gold-300 font-serif">Бакыт & Айпери</strong> жана ата-энелери
+                </div>
+            </div>
+
+            <!-- Bottom Sub Footer -->
+            <div class="mt-20 border-t border-gold-400/15 pt-8 text-center text-ivory/30 text-[11px] font-sans">
+                © 2026 Бакыт & Айпери. Бардык укуктар корголгон.
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ======================================================== -->
+    <!-- JAVASCRIPT: INTERACTION, GSAP, PETALS, COUNTDOWN         -->
+    <!-- ======================================================== -->
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+
+        // 1. PETALS GENERATOR
+        function createPetals() {
+            const container = document.getElementById('petals-container');
+            const petalCount = window.innerWidth < 768 ? 12 : 22;
+
+            for (let i = 0; i < petalCount; i++) {
+                const petal = document.createElement('div');
+                petal.className = 'petal';
+                
+                const size = Math.random() * 14 + 10;
+                petal.style.width = `${size}px`;
+                petal.style.height = `${size * 1.3}px`;
+                petal.style.left = `${Math.random() * 100}vw`;
+                petal.style.animationDuration = `${Math.random() * 6 + 7}s`;
+                petal.style.animationDelay = `${Math.random() * 5}s`;
+                
+                container.appendChild(petal);
+            }
+        }
+        createPetals();
+
+        // 2. OPEN ENVELOPE LOGIC
+        let isOpened = false;
+        function openEnvelope() {
+            if (isOpened) return;
+            isOpened = true;
+
+            const envelope = document.getElementById('envelope');
+            const envelopeScreen = document.getElementById('envelope-screen');
+            const mainContent = document.getElementById('main-content');
+            const instructions = document.getElementById('open-instructions');
+
+            // Add Open Class to 3D envelope
+            envelope.classList.add('open');
+            instructions.style.opacity = '0';
+
+            // Confetti burst
+            try {
+                confetti({
+                    particleCount: 70,
+                    spread: 80,
+                    origin: { y: 0.6 },
+                    colors: ['#D4AF37', '#FAF7F2', '#AA820A', '#FFE4A0']
+                });
+            } catch (e) {}
+
+            // Sequence to reveal main page
+            setTimeout(() => {
+                // Fade out intro envelope screen
+                envelopeScreen.style.opacity = '0';
+                envelopeScreen.style.transform = 'scale(1.1)';
+                envelopeScreen.style.pointerEvents = 'none';
+
+                // Reveal main content
+                mainContent.classList.remove('opacity-0');
+                mainContent.classList.add('opacity-100');
+
+                // Trigger GSAP Scroll animations
+                initScrollAnimations();
+                
+                // Play ambient chime/sparkle effect (simulated audio handler)
+                initAudio();
+            }, 1200);
+        }
+
+        // Click on envelope also triggers opening
+        document.getElementById('envelope').addEventListener('click', openEnvelope);
+
+        // 3. GSAP SCROLL ANIMATIONS
+        function initScrollAnimations() {
+            gsap.registerPlugin(ScrollTrigger);
+
+            gsap.utils.toArray('[data-anim="fade-up"]').forEach(elem => {
+                gsap.fromTo(elem, 
+                    { opacity: 0, y: 50 },
+                    {
+                        opacity: 1, 
+                        y: 0, 
+                        duration: 1.1, 
+                        ease: 'power3.out',
+                        scrollTrigger: {
+                            trigger: elem,
+                            start: 'top 85%',
+                            toggleActions: 'play none none none'
+                        }
+                    }
+                );
+            });
+
+            gsap.utils.toArray('[data-anim="zoom-in"]').forEach(elem => {
+                gsap.fromTo(elem, 
+                    { opacity: 0, scale: 0.85 },
+                    {
+                        opacity: 1, 
+                        scale: 1, 
+                        duration: 1.3, 
+                        ease: 'power2.out',
+                        scrollTrigger: {
+                            trigger: elem,
+                            start: 'top 80%',
+                            toggleActions: 'play none none none'
+                        }
+                    }
+                );
+            });
+
+            // Parallax on corner botanicals based on scroll
+            window.addEventListener('scroll', () => {
+                const scrolled = window.pageYOffset;
+                const flowerTL = document.getElementById('corner-flower-tl');
+                const flowerBR = document.getElementById('corner-flower-br');
+
+                if (flowerTL && flowerBR) {
+                    flowerTL.style.transform = `translate(${Math.sin(scrolled * 0.003) * 12}px, ${Math.cos(scrolled * 0.003) * 12}px)`;
+                    flowerBR.style.transform = `rotate(180deg) translate(${Math.cos(scrolled * 0.003) * 12}px, ${Math.sin(scrolled * 0.003) * 12}px)`;
+                }
+            });
+        }
+
+        // 4. COUNTDOWN TIMER (Target: Sept 18, 2026, 18:00 KG Time)
+        function initCountdown() {
+            const targetDate = new Date('2026-09-18T18:00:00+06:00').getTime();
+
+            function update() {
+                const now = new Date().getTime();
+                const difference = targetDate - now;
+
+                if (difference > 0) {
+                    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+                    document.getElementById('cd-days').innerText = days < 10 ? '0' + days : days;
+                    document.getElementById('cd-hours').innerText = hours < 10 ? '0' + hours : hours;
+                    document.getElementById('cd-minutes').innerText = minutes < 10 ? '0' + minutes : minutes;
+                    document.getElementById('cd-seconds').innerText = seconds < 10 ? '0' + seconds : seconds;
+                }
+            }
+            update();
+            setInterval(update, 1000);
+        }
+        initCountdown();
+
+        // 5. AUDIO PLAYER (Synthesized Web Audio Ambient Chime)
+        let audioCtx;
+        let isPlaying = false;
+        const musicBtn = document.getElementById('music-toggle');
+
+        function initAudio() {
+            musicBtn.addEventListener('click', toggleAudio);
+        }
+
+        function toggleAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            if (!isPlaying) {
+                isPlaying = true;
+                musicBtn.classList.add('text-gold-400', 'border-gold-400');
+                musicBtn.innerHTML = '<i data-lucide="volume-2" class="w-5 h-5 animate-pulse text-gold-400"></i>';
+                lucide.createIcons();
+                playMelodicChime();
+            } else {
+                isPlaying = false;
+                musicBtn.classList.remove('text-gold-400', 'border-gold-400');
+                musicBtn.innerHTML = '<i data-lucide="volume-x" class="w-5 h-5 text-ivory/60"></i>';
+                lucide.createIcons();
+            }
+        }
+
+        // Soft elegant pentatonic chord arpeggio for wedding mood
+        function playMelodicChime() {
+            if (!isPlaying || !audioCtx) return;
+
+            const notes = [261.63, 329.63, 392.00, 523.25, 659.25]; // C Major pentatonic
+            const note = notes[Math.floor(Math.random() * notes.length)];
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(note, audioCtx.currentTime);
+
+            gain.gain.setValueAtTime(0.01, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.08, audioCtx.currentTime + 0.5);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 3.5);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 3.6);
+
+            if (isPlaying) {
+                setTimeout(playMelodicChime, Math.random() * 1500 + 1200);
+            }
+        }
+    </script>
+</body>
+</html>
